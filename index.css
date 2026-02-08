@@ -8,8 +8,8 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden;
-  /* Prevent body scroll, let App container handle it */
+  overflow-y: auto;
+  overflow-x: hidden;
   background-color: #000;
 }
 

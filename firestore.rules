@@ -1,0 +1,99 @@
+﻿rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return userRole() in ['admin', 'super_admin'];
+    }
+
+    function isSuperAdmin() {
+      return userRole() == 'super_admin';
+    }
+
+    function userSchoolId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.schoolId;
+    }
+
+    function hasSchool() {
+      return userSchoolId() != null && userSchoolId() != '';
+    }
+
+    function schoolLocks() {
+      return hasSchool()
+        ? get(/databases/$(database)/documents/schools/$(userSchoolId())).data.locks
+        : {};
+    }
+
+    function isLocked(key) {
+      return hasSchool() && schoolLocks()[key] == true;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && (userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && userId == request.auth.uid;
+      allow update: if isSignedIn() && (userId == request.auth.uid || (isAdmin() && !isLocked('users')) || isSuperAdmin());
+      allow delete: if isSuperAdmin();
+    }
+
+    match /schools/{schoolId} {
+      allow create, update, delete: if isSuperAdmin();
+      allow read: if isSuperAdmin() || (isAdmin() && userSchoolId() == schoolId);
+    }
+
+    match /admissions/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /user_invites/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /classes/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSuperAdmin() || (isAdmin() && !isLocked('academics'));
+    }
+
+    match /attendance_records/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSuperAdmin() || ((userRole() in ['teacher', 'admin']) && !isLocked('academics'));
+    }
+
+    match /exams/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSuperAdmin() || ((userRole() in ['teacher', 'admin']) && !isLocked('academics'));
+    }
+
+    match /routes/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSuperAdmin() || ((userRole() in ['driver', 'admin']) && !isLocked('transport'));
+    }
+
+    match /inventory/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSuperAdmin() || (isAdmin() && !isLocked('academics'));
+    }
+
+    match /notifications/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSuperAdmin() || ((userRole() in ['teacher', 'admin']) && !isLocked('academics'));
+    }
+
+    match /audit_logs/{docId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if isSignedIn() && isAdmin();
+    }
+  }
+}

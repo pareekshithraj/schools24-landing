@@ -1,11 +1,12 @@
-
-import React from 'react';
+﻿import React from 'react';
 import Hero from '../components/Hero';
+import DownloadApps from '../components/DownloadApps';
 import Partners from '../components/Partners';
 import Services from '../components/Services';
 import Features from '../components/Features';
 import HowWeWork from '../components/HowWeWork';
 import ValueStatement from '../components/ValueStatement';
+import PortalSpectrum from '../components/PortalSpectrum';
 
 import ScrollVideo from '../components/ScrollVideo';
 import KnowUs from '../components/KnowUs';
@@ -18,13 +19,18 @@ const Home: React.FC = () => {
                 {/* Phase 1: Brand Reveal */}
                 <Hero />
 
+                {/* Phase 1.5: Cross-Platform Access */}
+                <DownloadApps />
+
                 {/* Phase 2: Industry Presence */}
                 <Partners />
 
                 {/* Phase 3: Product Narrative */}
                 <Services />
 
-                {/* Phase 4: Capabilities Grid */}
+                {/* Phase 3.5: Portal Spectrum */}
+                <PortalSpectrum />
+
                 {/* Phase 4: Capabilities Grid */}
                 <Features />
 

@@ -1,10 +1,11 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === '/';
+  const hideNav = location.pathname.startsWith('/dashboard');
 
   const handleScroll = (id: string) => {
     if (!isHome) {
@@ -18,6 +19,10 @@ const Navbar: React.FC = () => {
       if (element) element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  if (hideNav) {
+    return null;
+  }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] bg-black/95 border-b border-white/10">
@@ -33,7 +38,7 @@ const Navbar: React.FC = () => {
           <Link to="/news" className="text-sm font-bold opacity-70 hover:opacity-100 transition-opacity">
             News
           </Link>
-          {['Services'].map((item) => (
+          {['Services', 'Portals'].map((item) => (
             <button
               key={item}
               onClick={() => handleScroll(item.toLowerCase())}
@@ -48,9 +53,9 @@ const Navbar: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-6">
-          <button className="text-sm font-bold opacity-70 hover:opacity-100 transition-opacity">
+          <Link to="/login" className="text-sm font-bold opacity-70 hover:opacity-100 transition-opacity">
             Log In
-          </button>
+          </Link>
           <Link to="/register" className="px-6 py-2.5 bg-[#f59e0b] text-white rounded-lg font-bold text-sm hover:brightness-110 transition-all">
             Get Started
           </Link>
